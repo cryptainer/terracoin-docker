@@ -1,10 +1,15 @@
 FROM ubuntu:16.04
 
-ARG binaryPath=/usr/local/bin/terracoind
-ENV BINARY_PATH=$binaryPath
-ENV SENTINEL_DEBUG=1
+ARG terracoinVersion=0.12.1.5p
+ARG sentinelVersion=master
+ARG _terracoinBin=/opt/terracoin/terracoind
+ARG _sentinelBin=/opt/sentinel/sentinel.sh
+ARG _entryPointBin=/opt/docker-entrypoint.sh
 
-ADD https://github.com/terracoin/terracoin/releases/download/0.12.1.5p/terracoind $binaryPath
+ENV WALLET_CONF /etc/terracoin/terracoin.conf
+ENV MASTERNODE_CONF /etc/terracoin/masternode.conf
+ENV WALLET_DATA /root/.terracoincore/
+ENV SENTINEL_HOME /opt/sentinel/src
 
 RUN apt-get update && \
     apt-get install -y software-properties-common python-software-properties && \
@@ -13,24 +18,35 @@ RUN apt-get update && \
     apt-get install -y \
     libdb4.8-dev libdb4.8++-dev libevent-dev libminiupnpc-dev \
     libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-thread-dev \
-    python-virtualenv git && \
+    python-virtualenv git wget && \
     apt-get purge -y python-software-properties
 
-RUN chmod +x $binaryPath
+COPY /opt /opt
+COPY /docker-entrypoint.sh $_entryPointBin
 
-RUN mkdir -p /opt/sentinel && \
-    cd /opt/sentinel && \
+RUN mkdir -p `dirname $_terracoinBin` && \
+    wget https://github.com/terracoin/terracoin/releases/download/$terracoinVersion/terracoind -O $_terracoinBin && \
+    chmod +x $_terracoinBin && \
+    ln -s $_terracoinBin /usr/local/bin/terracoind && \
+    chmod +x $_entryPointBin && \
+    ln -s $_entryPointBin /usr/local/bin/docker-entry && \
+    mkdir -p /etc/terracoin
+
+RUN mkdir -p ${SENTINEL_HOME} && \
+    cd ${SENTINEL_HOME} && \
     git clone https://github.com/terracoin/sentinel.git . && \
+    git checkout $sentinelVersion && \
     virtualenv ./venv && \
     ./venv/bin/pip install -r requirements.txt && \
-    echo "terracoin_conf=/root/.terracoincore/terracoin.conf" >> sentinel.conf && \
-    echo "* * * * * cd /opt/sentinel && SENTINEL_DEBUG=1 ./venv/bin/python bin/sentinel.py >> sentinel.log 2>&1" > /tmp/crontab && \
+    echo "terracoin_conf=${WALLET_CONF}" >> sentinel.conf && \
+    echo "* * * * * sentinel 2>&1 >> /var/log/sentinel.log" > /tmp/crontab && \
     crontab /tmp/crontab && \
+    rm -f /tmp/crontab && \
+    chmod +x $_sentinelBin && \
+    ln -s $_sentinelBin /usr/local/bin/sentinel && \
     ./venv/bin/py.test ./test 2>&1; exit 0
 
-RUN mkdir -p /root/.terracoincore/
+EXPOSE 13333 22350
 
-
-
-ENTRYPOINT ${BINARY_PATH} -printtoconsole
+ENTRYPOINT ["docker-entry"]
 
