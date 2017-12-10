@@ -39,7 +39,8 @@ RUN mkdir -p ${SENTINEL_HOME} && \
     virtualenv ./venv && \
     ./venv/bin/pip install -r requirements.txt && \
     echo "terracoin_conf=${WALLET_CONF}" >> sentinel.conf && \
-    echo "* * * * * sentinel 2>&1 >> /var/log/sentinel.log" > /tmp/crontab && \
+    echo "SENTINEL_HOME=${SENTINEL_HOME}" > /tmp/crontab && \
+    echo "* * * * * /usr/local/bin/sentinel >> /var/log/sentinel.log 2>&1" >> /tmp/crontab && \
     crontab /tmp/crontab && \
     rm -f /tmp/crontab && \
     chmod +x $_sentinelBin && \
