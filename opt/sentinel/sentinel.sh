@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd ${SENTINEL_HOME};
-./venv/bin/python bin/sentinel.py >> sentinel.log 2>&1
+./venv/bin/python bin/sentinel.py
