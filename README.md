@@ -11,7 +11,7 @@ The image ships with a pre-configured [sentinel](https://github.com/terracoin/se
 
 A typical `cryptainer/terracoin` masternode container can be started as follows:
 ```bash
-docker run cryptainer/terracoin \
+docker run \
   -e conf_rpcuser=changeme \
   -e conf_rpcpassword=changeme \
   -e conf_rpcallowip=::/0 \
@@ -21,7 +21,8 @@ docker run cryptainer/terracoin \
   -e conf_masternode=1 \
   -e conf_externalip=<your masternode public ip>:13333 \
   -e conf_masternodeprivkey=<your masternode privatekey> \
-  -v /path/to/data/:/root/.terracoincore
+  -v /path/to/data:/data \
+  cryptainer/terracoin
 ```
 
 ### Volumes

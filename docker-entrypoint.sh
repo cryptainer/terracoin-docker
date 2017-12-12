@@ -24,4 +24,4 @@ fi
 # Ensure cron is running, so sentinel is run periodically
 cron;
 
-exec terracoind -conf=${WALLET_CONF} -mnconf=${MASTERNODE_CONF}
+exec terracoind -conf=${WALLET_CONF} -mnconf=${MASTERNODE_CONF} -datadir=${WALLET_DATA}

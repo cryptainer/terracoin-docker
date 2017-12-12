@@ -8,7 +8,7 @@ ARG _entryPointBin=/opt/docker-entrypoint.sh
 
 ENV WALLET_CONF /etc/terracoin/terracoin.conf
 ENV MASTERNODE_CONF /etc/terracoin/masternode.conf
-ENV WALLET_DATA /root/.terracoincore/
+ENV WALLET_DATA /data/
 ENV SENTINEL_HOME /opt/sentinel/src
 
 RUN apt-get update && \
@@ -46,6 +46,8 @@ RUN mkdir -p ${SENTINEL_HOME} && \
     chmod +x $_sentinelBin && \
     ln -s $_sentinelBin /usr/local/bin/sentinel && \
     ./venv/bin/py.test ./test 2>&1; exit 0
+
+VOLUME /data
 
 EXPOSE 13333 22350
 
