@@ -26,7 +26,7 @@ docker run \
 ```
 
 ### Volumes
-* `/root/.terracoincore`: The `.terracoincore` directory (blockdata,...)
+* `/data`: The `.terracoincore` directory (blocks, chainstate,...)
 
 ### Configuration
 The `terracoin.conf` gets generated on each container start based on the given environment variables prefixed with `conf_`.
