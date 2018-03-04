@@ -1,6 +1,7 @@
 FROM ubuntu:16.04
 
-ARG terracoinVersion=0.12.1.5p
+ARG terracoinVersion=0.12.1
+ARG terracoinRelease=8
 ARG sentinelVersion=master
 ARG _terracoinBin=/opt/terracoin/terracoind
 ARG _sentinelBin=/opt/sentinel/sentinel.sh
@@ -25,7 +26,10 @@ COPY /opt /opt
 COPY /docker-entrypoint.sh $_entryPointBin
 
 RUN mkdir -p `dirname $_terracoinBin` && \
-    wget https://github.com/terracoin/terracoin/releases/download/$terracoinVersion/terracoind -O $_terracoinBin && \
+    wget https://terracoin.io/bin/terracoin-core-$terracoinVersion\.$terracoinRelease/terracoin-$terracoinVersion\-x86_64-linux-gnu.tar.gz -O trc.tar.gz && \
+    tar -xzvf trc.tar.gz && \
+    mv terracoin-$terracoinVersion/bin/terracoind $_terracoinBin && \
+    rm -rf trc.tar.gz terracoin-$terracoinVersion && \
     chmod +x $_terracoinBin && \
     ln -s $_terracoinBin /usr/local/bin/terracoind && \
     chmod +x $_entryPointBin && \
